@@ -94,10 +94,13 @@ Show the user the branch name, file list, and commit message, then run:
 
 Only pass `-Approved` after the user approved in step 4. The script refuses to publish to
 `main`, stages only the listed files, and reports an existing PR instead of opening a
-duplicate.
+duplicate. It requests a review from `git config review.reviewer` and, when
+`git config review.autoMerge` is `true`, turns on squash auto-merge (the PR still merges
+only after the required approval).
 
 ## 6. Wrap up
 
 Give the PR link, list what was left uncommitted, and remind the user that the other
-developer must approve the PR on GitHub before it can merge. After it merges:
+developer must approve the PR on GitHub before it can merge (with auto-merge on, it then
+merges by itself). After it merges:
 `git switch main && git pull`.

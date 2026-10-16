@@ -151,7 +151,18 @@ Invoke-Git push -u origin $Branch
 $existing = & $gh pr list --head $Branch --base $Base --state open --json url --jq '.[0].url'
 if ($existing) {
     Write-Output "Pushed to existing pull request: $existing"
-} else {
-    & $gh pr create --base $Base --head $Branch --title $Title --body-file $BodyFile
-    if ($LASTEXITCODE -ne 0) { throw 'gh pr create failed.' }
+    return
+}
+
+# Per-developer settings: git config review.reviewer <github-user>, git config review.autoMerge true
+$reviewer = git config review.reviewer
+$prArgs = @('pr', 'create', '--base', $Base, '--head', $Branch, '--title', $Title, '--body-file', $BodyFile)
+if ($reviewer) { $prArgs += @('--reviewer', $reviewer) }
+& $gh @prArgs
+if ($LASTEXITCODE -ne 0) { throw 'gh pr create failed.' }
+
+# Auto-merge only merges after the required review approves it; it never skips review.
+if ((git config --bool review.autoMerge) -eq 'true') {
+    & $gh pr merge $Branch --auto --squash
+    if ($LASTEXITCODE -ne 0) { Write-Warning 'Could not enable auto-merge; merge manually after approval.' }
 }
