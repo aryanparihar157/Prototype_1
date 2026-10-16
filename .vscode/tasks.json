@@ -1,0 +1,29 @@
+{
+    // Read-only helpers. None of these run on save and none of them publish anything.
+    // Publishing only happens through the "Review My Changes" skill in Claude, after approval.
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Review My Changes: show changes",
+            "type": "shell",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/Tools/Git/ReviewMyChanges.ps1", "-Mode", "Status"],
+            "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+            "problemMatcher": []
+        },
+        {
+            "label": "Git: update main from GitHub",
+            "type": "shell",
+            "command": "git switch main; if ($?) { git pull --ff-only }",
+            "options": { "shell": { "executable": "powershell", "args": ["-NoProfile", "-Command"] } },
+            "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+            "problemMatcher": []
+        },
+        {
+            "label": "GitHub: open my pull requests",
+            "type": "shell",
+            "command": "gh pr list --author @me --web",
+            "problemMatcher": []
+        }
+    ]
+}
